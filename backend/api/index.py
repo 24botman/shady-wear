@@ -10,21 +10,35 @@ from datetime import datetime
 from supabase import create_client, Client
 
 def get_supabase() -> Client:
-    url = os.environ.get("SUPABASE_URL")
-    key = os.environ.get("SUPABASE_KEY")
+    url = os.environ.get("SUPABASE_URL", "").strip()
+    key = os.environ.get("SUPABASE_KEY", "").strip()
+    
     if not url or not key:
         return None
+        
+    # Clean URL: remove trailing slash and ensure https
+    if url.endswith("/"):
+        url = url[:-1]
+    if not url.startswith("http"):
+        url = f"https://{url}"
+
     try:
         return create_client(url, key)
-    except Exception:
+    except Exception as e:
+        print(f"Supabase Init Error: {str(e)}")
         return None
 
-# Global instance for routes that don't need DI
+# Global instance with error tracking
 _supabase_client = None
+_init_error = None
+
 def supabase_client():
-    global _supabase_client
+    global _supabase_client, _init_error
     if _supabase_client is None:
-        _supabase_client = get_supabase()
+        try:
+            _supabase_client = get_supabase()
+        except Exception as e:
+            _init_error = str(e)
     return _supabase_client
 
 # --- JWT verification ---
