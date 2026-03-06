@@ -18,8 +18,10 @@ export default function Review() {
     const [comment, setComment] = useState('')
     const [submitting, setSubmitting] = useState(false)
 
-    // In real app, fetch reviews on mount
-    // useEffect(() => { getReviews().then(res => setReviews(res.data)) }, [])
+    // Fetch reviews on mount
+    useEffect(() => {
+        getReviews().then(res => setReviews(res))
+    }, [])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -27,20 +29,16 @@ export default function Review() {
 
         setSubmitting(true)
         try {
-            // Mock API call for now
-            // await createReview({ rating, comment })
-            const newReview = {
-                id: Date.now().toString(),
-                user_name: user?.user_metadata?.full_name || 'Anonymous',
-                rating,
-                comment
-            }
-            setReviews([newReview, ...reviews])
+            await createReview({ rating, comment })
+            // Re-fetch reviews to show the new one
+            const updated = await getReviews()
+            setReviews(updated)
             setComment('')
             setRating(5)
+            alert("✅ Review posted!")
         } catch (err) {
             console.error(err)
-            alert("Failed to post review")
+            alert("Failed to post review. Please make sure you are signed in.")
         } finally {
             setSubmitting(false)
         }
