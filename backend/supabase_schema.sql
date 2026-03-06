@@ -58,24 +58,30 @@ ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
 -- Products: anyone can read
+DROP POLICY IF EXISTS "Products are viewable by everyone" ON products;
 CREATE POLICY "Products are viewable by everyone" ON products
   FOR SELECT USING (true);
 
 -- Orders: users can only see their own orders
+DROP POLICY IF EXISTS "Users can view own orders" ON orders;
 CREATE POLICY "Users can view own orders" ON orders
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can create own orders" ON orders;
 CREATE POLICY "Users can create own orders" ON orders
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Reviews: anyone can read, authenticated users can create
+DROP POLICY IF EXISTS "Reviews are viewable by everyone" ON reviews;
 CREATE POLICY "Reviews are viewable by everyone" ON reviews
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Authenticated users can create reviews" ON reviews;
 CREATE POLICY "Authenticated users can create reviews" ON reviews
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Contact: anyone can submit (insert), only admins can read
+DROP POLICY IF EXISTS "Anyone can submit contact messages" ON contact_messages;
 CREATE POLICY "Anyone can submit contact messages" ON contact_messages
   FOR INSERT WITH CHECK (true);
 
