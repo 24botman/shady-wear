@@ -6,4 +6,9 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-k
 // Ensure we don't crash if the URL is invalid during initialization
 export const supabase = (supabaseUrl && supabaseUrl.startsWith('http'))
     ? createClient(supabaseUrl, supabaseAnonKey)
-    : { auth: { getSession: async () => ({ data: { session: null } }), onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } }) } } };
+    : {
+        auth: {
+            getSession: async () => ({ data: { session: null } }),
+            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } })
+        }
+    };
