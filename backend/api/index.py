@@ -36,10 +36,11 @@ def verify_token(authorization: str = Header(None)):
         raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
 
     token = authorization.replace("Bearer ", "")
+    secret = os.environ.get("SUPABASE_JWT_SECRET", "placeholder-secret")
     try:
         payload = jwt.decode(
             token,
-            SUPABASE_JWT_SECRET,
+            secret,
             algorithms=["HS256"],
             audience="authenticated",
         )
