@@ -12,12 +12,16 @@ export default function Contact() {
         e.preventDefault()
         setStatus('loading')
         try {
-            await sendContact(formData)
-            setStatus('success')
-            setFormData({ name: '', email: '', message: '' })
-            setTimeout(() => setStatus('idle'), 5000)
+            const res = await sendContact(formData)
+            if (res.status === 200 || res.status === 201) {
+                setStatus('success')
+                setFormData({ name: '', email: '', message: '' })
+                setTimeout(() => setStatus('idle'), 5000)
+            } else {
+                throw new Error("Failed to send")
+            }
         } catch (error) {
-            console.error(error)
+            console.error("Contact form error:", error)
             setStatus('error')
         }
     }
