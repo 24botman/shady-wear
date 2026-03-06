@@ -217,7 +217,11 @@ async def submit_contact(contact: ContactCreate):
     """Submit a contact form message."""
     client = supabase_client()
     if not client:
-        raise HTTPException(status_code=500, detail="Supabase not configured")
+        # Check specific env vars to be helpful
+        missing = []
+        if not os.environ.get("SUPABASE_URL"): missing.append("SUPABASE_URL")
+        if not os.environ.get("SUPABASE_KEY"): missing.append("SUPABASE_KEY")
+        raise HTTPException(status_code=500, detail=f"Backend Error: Missing Vercel Env Vars: {', '.join(missing)}")
     try:
         contact_data = {
             "name": contact.name,
@@ -227,7 +231,7 @@ async def submit_contact(contact: ContactCreate):
         response = client.table("contact_messages").insert(contact_data).execute()
         return {"message": "Message sent successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Database Error: {str(e)}")
 
 
 # ========================
@@ -235,8 +239,18 @@ async def submit_contact(contact: ContactCreate):
 # ========================
 @app.get("/")
 async def root():
-    return {"message": "Shady Wear API is running", "docs": "/docs"}
+    client_status = "Connected" if supabase_client() is not None else "Missing Configuration (Check Vercel Env Vars)"
+    return {
+        "message": "Shady Wear API is running", 
+        "supabase_status": client_status,
+        "docs": "/docs"
+    }
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "service": "Shady Wear API", "version": "1.0.0"}
+    return {
+        "status": "ok", 
+        "service": "Shady Wear API", 
+        "version": "1.1.0",
+        "supabase_configured": supabase_client() is not None
+    }

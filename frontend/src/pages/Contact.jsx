@@ -22,6 +22,8 @@ export default function Contact() {
             }
         } catch (error) {
             console.error("Contact form error:", error)
+            const serverMsg = error.response?.data?.detail || error.message
+            alert(`⚠️ Error: ${serverMsg}`)
             setStatus('error')
         }
     }
