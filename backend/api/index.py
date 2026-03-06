@@ -239,10 +239,17 @@ async def submit_contact(contact: ContactCreate):
 # ========================
 @app.get("/")
 async def root():
-    missing = []
-    if not os.environ.get("SUPABASE_URL"): missing.append("SUPABASE_URL")
-    if not os.environ.get("SUPABASE_KEY"): missing.append("SUPABASE_KEY")
+    url = os.environ.get("SUPABASE_URL", "")
+    key = os.environ.get("SUPABASE_KEY", "")
     
+    missing = []
+    if not url: missing.append("SUPABASE_URL")
+    if not key: missing.append("SUPABASE_KEY")
+    
+    # Masking for safety
+    masked_url = f"{url[:12]}...{url[-5:]}" if len(url) > 15 else "Invalid URL"
+    masked_key = f"{key[:8]}...{key[-5:]}" if len(key) > 15 else "Invalid Key"
+
     if not missing:
         client = supabase_client()
         if client:
@@ -255,8 +262,11 @@ async def root():
     return {
         "message": "Shady Wear API is running", 
         "supabase_status": client_status,
-        "docs": "/docs",
-        "tip": "Add these keys in Vercel Dashboard -> Settings -> Environment Variables and then REDEPLOY."
+        "verification_check": {
+            "your_url_looks_like": masked_url,
+            "your_key_looks_like": masked_key
+        },
+        "tip": "Check if your Key starts with 'eyJ' (Service Role) and your URL starts with 'https://'."
     }
 
 @app.get("/api/health")
