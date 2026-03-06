@@ -43,7 +43,7 @@ export default function Navbar() {
                 <Link to="/" className="navbar__logo">
                     <span className="navbar__logo-icon">🔥</span>
                     <span className="navbar__logo-text">
-                        SHADY<span>WEAR</span>
+                        EMINEM<span>CLOTHING</span>
                     </span>
                 </Link>
 
