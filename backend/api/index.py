@@ -195,6 +195,10 @@ async def submit_contact(contact: ContactCreate):
 # ========================
 # HEALTH CHECK
 # ========================
+@app.get("/")
+async def root():
+    return {"message": "Shady Wear API is running", "docs": "/docs"}
+
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "service": "Shady Wear API", "version": "1.0.0"}
