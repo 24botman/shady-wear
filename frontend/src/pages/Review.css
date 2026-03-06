@@ -1,0 +1,121 @@
+.review-header {
+    padding-top: 140px;
+    padding-bottom: 60px;
+    background: var(--color-dark);
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 60px;
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.review-card {
+    padding: 30px;
+}
+
+.review-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.review-card__author {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.review-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-red);
+    color: var(--color-white-pure);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.review-card__author h4 {
+    font-size: 1.1rem;
+}
+
+.review-card__comment {
+    font-size: 1.05rem;
+    color: var(--color-gray-light);
+    line-height: 1.8;
+    font-style: italic;
+}
+
+.review-form-wrapper {
+    padding: 40px;
+    height: fit-content;
+    position: sticky;
+    top: 120px;
+}
+
+.review-form-wrapper h3 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+}
+
+.review-form-wrapper h3 span {
+    color: var(--color-red);
+}
+
+.review-login-prompt {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.review-login-prompt p {
+    color: var(--color-gray-light);
+    margin-bottom: 24px;
+}
+
+.review-login-prompt button {
+    width: 100%;
+}
+
+.review-rating-select {
+    display: flex;
+    gap: 8px;
+}
+
+.star-btn {
+    font-size: 2rem;
+    color: var(--color-gray);
+    transition: color var(--transition-fast);
+}
+
+.star-btn:hover,
+.star-btn.active {
+    color: var(--color-gold);
+}
+
+.review-submit {
+    width: 100%;
+    margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+    .review-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .review-form-wrapper {
+        position: static;
+    }
+}
