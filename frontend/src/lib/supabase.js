@@ -9,6 +9,11 @@ export const supabase = (supabaseUrl && supabaseUrl.startsWith('http'))
     : {
         auth: {
             getSession: async () => ({ data: { session: null } }),
-            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } })
+            onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => { } } } }),
+            signInWithOAuth: async () => {
+                alert("⚠️ Configuration Missing: Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your Netlify environment variables.");
+                return { error: { message: "Supabase not configured" } };
+            },
+            signOut: async () => { }
         }
     };
