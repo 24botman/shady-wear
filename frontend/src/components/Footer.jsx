@@ -12,7 +12,7 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="footer__brand">
                         <h3 className="footer__logo">
-                            🔥 SHADY<span>WEAR</span>
+                            🔥 EMINEM<span>CLOTHING</span>
                         </h3>
                         <p className="footer__tagline">
                             Official Eminem Clothing. Premium streetwear inspired by the one and only Slim Shady.
@@ -76,9 +76,9 @@ export default function Footer() {
                 </div>
 
                 <div className="footer__bottom">
-                    <p>&copy; 2026 SHADY WEAR. All rights reserved.</p>
+                    <p>&copy; 2026 EMINEM CLOTHING. All rights reserved.</p>
                     <p>
-                        Designed with 🔥 for the <span className="text-gradient">Slim Shady</span> community
+                        Designed by Adhi🔥
                     </p>
                 </div>
             </div>

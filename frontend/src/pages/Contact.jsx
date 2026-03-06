@@ -58,22 +58,22 @@ export default function Contact() {
                         <div className="info-item">
                             <FiMapPin className="info-icon" />
                             <div>
-                                <h4>HEADQUARTERS</h4>
-                                <p>8 Mile Road<br />Detroit, MI 48205<br />United States</p>
+                                <h4>LOCATION</h4>
+                                <p>Nelson road<br />Thiruanaikovil<br />Tiruchirappalli-620006</p>
                             </div>
                         </div>
                         <div className="info-item">
                             <FiMail className="info-icon" />
                             <div>
                                 <h4>EMAIL</h4>
-                                <p>support@shadywear.com<br />collabs@shadywear.com</p>
+                                <p>Eminem@gmail.com<br />shadywear@gmail.com</p>
                             </div>
                         </div>
                         <div className="info-item">
                             <FiPhone className="info-icon" />
                             <div>
                                 <h4>PHONE</h4>
-                                <p>+1 (313) 555-0199<br />Mon-Fri, 9am - 5pm EST</p>
+                                <p>+91 987654321<br />Mon-Fri, 9am - 5pm EST</p>
                             </div>
                         </div>
                     </motion.div>
