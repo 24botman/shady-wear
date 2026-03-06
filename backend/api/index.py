@@ -6,14 +6,26 @@ import os
 import json
 from datetime import datetime
 
-# --- Supabase client ---
+# --- Supabase client (Lazy Init) ---
 from supabase import create_client, Client
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "https://placeholder.supabase.co")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "placeholder-key")
-SUPABASE_JWT_SECRET = os.environ.get("SUPABASE_JWT_SECRET", "placeholder-jwt-secret")
+def get_supabase() -> Client:
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
+    if not url or not key:
+        return None
+    try:
+        return create_client(url, key)
+    except Exception:
+        return None
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Global instance for routes that don't need DI
+_supabase_client = None
+def supabase_client():
+    global _supabase_client
+    if _supabase_client is None:
+        _supabase_client = get_supabase()
+    return _supabase_client
 
 # --- JWT verification ---
 from jose import jwt, JWTError
@@ -81,8 +93,12 @@ app.add_middleware(
 @app.get("/api/products")
 async def get_products():
     """Retrieve all products."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
+    
     try:
-        response = supabase.table("products").select("*").order("created_at", desc=True).execute()
+        response = client.table("products").select("*").order("created_at", desc=True).execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -91,8 +107,11 @@ async def get_products():
 @app.get("/api/products/{product_id}")
 async def get_product(product_id: str):
     """Retrieve a single product by ID."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
     try:
-        response = supabase.table("products").select("*").eq("id", product_id).single().execute()
+        response = client.table("products").select("*").eq("id", product_id).single().execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -104,6 +123,10 @@ async def get_product(product_id: str):
 @app.post("/api/orders")
 async def create_order(order: OrderCreate, user=Depends(verify_token)):
     """Create a new order. Requires authentication."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
+    
     user_id = user.get("sub")
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid user")
@@ -116,7 +139,7 @@ async def create_order(order: OrderCreate, user=Depends(verify_token)):
             "status": "pending",
             "shipping_address": order.shipping_address,
         }
-        response = supabase.table("orders").insert(order_data).execute()
+        response = client.table("orders").insert(order_data).execute()
         return {"message": "Order placed successfully", "order": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -125,10 +148,14 @@ async def create_order(order: OrderCreate, user=Depends(verify_token)):
 @app.get("/api/orders")
 async def get_orders(user=Depends(verify_token)):
     """Get all orders for the authenticated user."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
+        
     user_id = user.get("sub")
     try:
         response = (
-            supabase.table("orders")
+            client.table("orders")
             .select("*")
             .eq("user_id", user_id)
             .order("created_at", desc=True)
@@ -145,8 +172,11 @@ async def get_orders(user=Depends(verify_token)):
 @app.get("/api/reviews")
 async def get_reviews():
     """Retrieve all reviews."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
     try:
-        response = supabase.table("reviews").select("*").order("created_at", desc=True).execute()
+        response = client.table("reviews").select("*").order("created_at", desc=True).execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -155,6 +185,10 @@ async def get_reviews():
 @app.post("/api/reviews")
 async def create_review(review: ReviewCreate, user=Depends(verify_token)):
     """Submit a review. Requires authentication."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
+        
     user_id = user.get("sub")
     user_name = user.get("user_metadata", {}).get("full_name", "Anonymous")
 
@@ -168,7 +202,7 @@ async def create_review(review: ReviewCreate, user=Depends(verify_token)):
             "rating": review.rating,
             "comment": review.comment,
         }
-        response = supabase.table("reviews").insert(review_data).execute()
+        response = client.table("reviews").insert(review_data).execute()
         return {"message": "Review posted successfully", "review": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -180,13 +214,16 @@ async def create_review(review: ReviewCreate, user=Depends(verify_token)):
 @app.post("/api/contact")
 async def submit_contact(contact: ContactCreate):
     """Submit a contact form message."""
+    client = supabase_client()
+    if not client:
+        raise HTTPException(status_code=500, detail="Supabase not configured")
     try:
         contact_data = {
             "name": contact.name,
             "email": contact.email,
             "message": contact.message,
         }
-        response = supabase.table("contact_messages").insert(contact_data).execute()
+        response = client.table("contact_messages").insert(contact_data).execute()
         return {"message": "Message sent successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
