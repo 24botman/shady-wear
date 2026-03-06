@@ -239,11 +239,24 @@ async def submit_contact(contact: ContactCreate):
 # ========================
 @app.get("/")
 async def root():
-    client_status = "Connected" if supabase_client() is not None else "Missing Configuration (Check Vercel Env Vars)"
+    missing = []
+    if not os.environ.get("SUPABASE_URL"): missing.append("SUPABASE_URL")
+    if not os.environ.get("SUPABASE_KEY"): missing.append("SUPABASE_KEY")
+    
+    if not missing:
+        client = supabase_client()
+        if client:
+            client_status = "Connected ✅"
+        else:
+            client_status = "Connection Failed (Invalid URL or Key format) ❌"
+    else:
+        client_status = f"Missing: {', '.join(missing)} ❌"
+
     return {
         "message": "Shady Wear API is running", 
         "supabase_status": client_status,
-        "docs": "/docs"
+        "docs": "/docs",
+        "tip": "Add these keys in Vercel Dashboard -> Settings -> Environment Variables and then REDEPLOY."
     }
 
 @app.get("/api/health")
