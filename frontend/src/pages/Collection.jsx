@@ -1,33 +1,91 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { FiFilter, FiChevronDown, FiSearch } from 'react-icons/fi'
 import ProductCard from '../components/ProductCard'
+import { getProducts } from '../lib/api'
 import './Collection.css'
 
-// Hardcoded initial data before backend integration
-const allProducts = [
-    { id: '1', name: 'Slim Shady Classic Hoodie', price: 89.99, image_url: '/images/1438079.jpg', category: 'Hoodies', sizes: ['S', 'M', 'L', 'XL'], in_stock: true, is_new: true },
-    { id: '2', name: 'Detroit 313 Bomber Jacket', price: 149.99, image_url: '/images/1448061.jpg', category: 'Jackets', sizes: ['M', 'L', 'XL', 'XXL'], in_stock: true, is_new: false },
-    { id: '3', name: 'Eminem Limited Tour Tee', price: 39.99, image_url: '/images/hmgoepprod.jpeg', category: 'T-Shirts', sizes: ['S', 'M', 'L'], in_stock: false, is_new: false },
-    { id: '4', name: 'MTBMB Red Cap', price: 29.99, image_url: '/images/OIP.jpeg', category: 'Accessories', sizes: ['OS'], in_stock: true, is_new: true },
-    { id: '5', name: 'Recovery Logo Tee', price: 34.99, image_url: '/images/OIP (7).jpeg', category: 'T-Shirts', sizes: ['S', 'M', 'L', 'XL'], in_stock: true, is_new: false },
-    { id: '6', name: 'Rap God Beanie', price: 24.99, image_url: '/images/pop.jfif', category: 'Accessories', sizes: ['OS'], in_stock: true, is_new: false },
-    { id: '7', name: 'Kamikaze Anorak', price: 119.99, image_url: '/images/t3.jfif', category: 'Jackets', sizes: ['M', 'L', 'XL'], in_stock: true, is_new: true },
-    { id: '8', name: '8 Mile Classic Hoodie (Grey)', price: 84.99, image_url: '/images/th (11).jpeg', category: 'Hoodies', sizes: ['S', 'M', 'L', 'XL'], in_stock: true, is_new: false },
+const categories = ['T-Shirts', 'Hoodies', 'Jackets', 'Accessories']
+const priceRanges = [
+    { label: 'Under $50', min: 0, max: 50 },
+    { label: '$50 - $100', min: 50, max: 100 },
+    { label: '$100 - $150', min: 100, max: 150 },
+    { label: 'Over $150', min: 150, max: 9999 }
 ]
 
-const categories = ['All', 'T-Shirts', 'Hoodies', 'Jackets', 'Accessories']
-
 export default function Collection() {
-    const [filter, setFilter] = useState('All')
-    const [filteredProducts, setFilteredProducts] = useState(allProducts)
+    const [products, setProducts] = useState([])
+    const [filteredProducts, setFilteredProducts] = useState([])
+    const [loading, setLoading] = useState(true)
 
+    // Filter State
+    const [selectedCategories, setSelectedCategories] = useState([])
+    const [selectedPriceRanges, setSelectedPriceRanges] = useState([])
+    const [sortBy, setSortBy] = useState('newest')
+    const [searchTerm, setSearchTerm] = useState('')
+
+    // Fetch products from backend
     useEffect(() => {
-        if (filter === 'All') {
-            setFilteredProducts(allProducts)
-        } else {
-            setFilteredProducts(allProducts.filter(p => p.category === filter))
+        const fetchProducts = async () => {
+            try {
+                const res = await getProducts()
+                setProducts(res.data)
+                setFilteredProducts(res.data)
+            } catch (err) {
+                console.error("Failed to fetch products:", err)
+            } finally {
+                setLoading(false)
+            }
         }
-    }, [filter])
+        fetchProducts()
+    }, [])
+
+    // Apply Filters & Sorting
+    useEffect(() => {
+        let result = [...products]
+
+        // Search Filter
+        if (searchTerm) {
+            result = result.filter(p =>
+                p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                p.description?.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        }
+
+        // Category Filter
+        if (selectedCategories.length > 0) {
+            result = result.filter(p => selectedCategories.includes(p.category))
+        }
+
+        // Price Filter
+        if (selectedPriceRanges.length > 0) {
+            result = result.filter(p => {
+                return selectedPriceRanges.some(range => {
+                    const r = priceRanges.find(pr => pr.label === range)
+                    return p.price >= r.min && p.price <= r.max
+                })
+            })
+        }
+
+        // Sorting
+        if (sortBy === 'price-low') result.sort((a, b) => a.price - b.price)
+        if (sortBy === 'price-high') result.sort((a, b) => b.price - a.price)
+        if (sortBy === 'newest') result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+        setFilteredProducts(result)
+    }, [products, selectedCategories, selectedPriceRanges, sortBy, searchTerm])
+
+    const toggleCategory = (cat) => {
+        setSelectedCategories(prev =>
+            prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+        )
+    }
+
+    const togglePriceRange = (label) => {
+        setSelectedPriceRanges(prev =>
+            prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
+        )
+    }
 
     return (
         <div className="collection page-enter page-enter-active">
@@ -40,53 +98,112 @@ export default function Collection() {
                     >
                         THE <span>COLLECTION</span>
                     </motion.h1>
-
-                    <motion.div
-                        className="collection-filters"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        {categories.map(cat => (
-                            <button
-                                key={cat}
-                                className={`filter-btn ${filter === cat ? 'active' : ''}`}
-                                onClick={() => setFilter(cat)}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </motion.div>
                 </div>
             </section>
 
-            <section className="collection-grid section">
-                <div className="container">
-                    <motion.div
-                        className="product-grid"
-                        layout
-                    >
-                        <AnimatePresence>
-                            {filteredProducts.map(product => (
-                                <motion.div
-                                    key={product.id}
-                                    layout
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    <ProductCard product={product} />
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-                    </motion.div>
-
-                    {filteredProducts.length === 0 && (
-                        <div className="collection-empty">
-                            <h3>No products found in this category.</h3>
+            <section className="section">
+                <div className="container collection-container">
+                    {/* Sidebar Filters */}
+                    <aside className="collection-sidebar">
+                        <div className="sidebar-section">
+                            <h4 className="sidebar-title">Categories</h4>
+                            <div className="filter-options">
+                                {categories.map(cat => (
+                                    <label key={cat} className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedCategories.includes(cat)}
+                                            onChange={() => toggleCategory(cat)}
+                                        />
+                                        {cat}
+                                    </label>
+                                ))}
+                            </div>
                         </div>
-                    )}
+
+                        <div className="sidebar-section">
+                            <h4 className="sidebar-title">Price Range</h4>
+                            <div className="filter-options">
+                                {priceRanges.map(range => (
+                                    <label key={range.label} className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedPriceRanges.includes(range.label)}
+                                            onChange={() => togglePriceRange(range.label)}
+                                        />
+                                        {range.label}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="sidebar-section">
+                            <button className="btn btn-outline w-100" onClick={() => {
+                                setSelectedCategories([])
+                                setSelectedPriceRanges([])
+                                setSearchTerm('')
+                            }}>
+                                CLEAR FILTERS
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="collection-main">
+                        <div className="collection-toolbar">
+                            <div className="product-count">
+                                <span>{filteredProducts.length}</span> Products Found
+                            </div>
+
+                            <div className="sort-container">
+                                <div className="search-bar">
+                                    <FiSearch />
+                                    <input
+                                        type="text"
+                                        placeholder="Search..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <select
+                                    className="sort-select"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="newest">Newest First</option>
+                                    <option value="price-low">Price: Low to High</option>
+                                    <option value="price-high">Price: High to Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {loading ? (
+                            <div className="loading-spinner">Loading products...</div>
+                        ) : (
+                            <motion.div className="product-grid" layout>
+                                <AnimatePresence>
+                                    {filteredProducts.map(product => (
+                                        <motion.div
+                                            key={product.id}
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <ProductCard product={product} />
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </motion.div>
+                        )}
+
+                        {!loading && filteredProducts.length === 0 && (
+                            <div className="collection-empty">
+                                <p>No items found. Try adjusting your filters.</p>
+                            </div>
+                        )}
+                    </main>
                 </div>
             </section>
         </div>
