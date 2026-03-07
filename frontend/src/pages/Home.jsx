@@ -13,38 +13,42 @@ const featuredProducts = [
     {
         id: '1',
         name: 'Slim Shady Classic Hoodie',
-        price: 89.99,
+        price: 3499,
         image_url: '/images/1438079.jpg',
         sizes: ['S', 'M', 'L', 'XL'],
         in_stock: true,
         is_new: true,
+        brand: 'Shady Records'
     },
     {
         id: '2',
         name: 'Detroit 313 Bomber Jacket',
-        price: 149.99,
+        price: 5999,
         image_url: '/images/1448061.jpg',
         sizes: ['M', 'L', 'XL', 'XXL'],
         in_stock: true,
         is_new: false,
+        brand: 'Shady Records'
     },
     {
         id: '3',
         name: 'Eminem Limited Tour Tee',
-        price: 39.99,
+        price: 1499,
         image_url: '/images/hmgoepprod.jpeg',
         sizes: ['S', 'M', 'L'],
         in_stock: false,
         is_new: false,
+        brand: 'Shady Records'
     },
     {
         id: '4',
         name: 'MTBMB Red Cap',
-        price: 29.99,
+        price: 999,
         image_url: '/images/OIP.jpeg',
         sizes: ['OS'],
         in_stock: true,
         is_new: true,
+        brand: 'Shady Records'
     }
 ]
 
