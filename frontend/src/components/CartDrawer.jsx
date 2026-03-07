@@ -91,7 +91,7 @@ export default function CartDrawer() {
                                             <div className="cart-item__details">
                                                 <h4>{item.name}</h4>
                                                 <p className="cart-item__size">Size: {item.size}</p>
-                                                <p className="cart-item__price">${item.price.toFixed(2)}</p>
+                                                <p className="cart-item__price">₹{item.price?.toLocaleString('en-IN')}</p>
                                                 <div className="cart-item__qty">
                                                     <button onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}>
                                                         <FiMinus />
@@ -115,7 +115,7 @@ export default function CartDrawer() {
                                 <div className="cart-drawer__footer">
                                     <div className="cart-drawer__total">
                                         <span>Total</span>
-                                        <span className="cart-drawer__total-price">${totalPrice.toFixed(2)}</span>
+                                        <span className="cart-drawer__total-price">₹{totalPrice?.toLocaleString('en-IN')}</span>
                                     </div>
                                     <button
                                         className="btn btn-primary cart-drawer__checkout"

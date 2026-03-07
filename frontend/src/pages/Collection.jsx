@@ -5,12 +5,13 @@ import ProductCard from '../components/ProductCard'
 import { getProducts } from '../lib/api'
 import './Collection.css'
 
-const categories = ['T-Shirts', 'Hoodies', 'Jackets', 'Accessories']
+const categories = ['T-Shirts', 'Hoodies', 'Pants', 'Jackets', 'Accessories']
+const brands = ['Shady Records', 'H&M', 'US Polo Assn', 'Zara', 'Nike']
 const priceRanges = [
-    { label: 'Under $50', min: 0, max: 50 },
-    { label: '$50 - $100', min: 50, max: 100 },
-    { label: '$100 - $150', min: 100, max: 150 },
-    { label: 'Over $150', min: 150, max: 9999 }
+    { label: 'Under ₹999', min: 0, max: 999 },
+    { label: '₹1,000 - ₹2,999', min: 1000, max: 2999 },
+    { label: '₹3,000 - ₹4,999', min: 3000, max: 4999 },
+    { label: 'Over ₹5,000', min: 5000, max: 999999 }
 ]
 
 export default function Collection() {
@@ -20,6 +21,7 @@ export default function Collection() {
 
     // Filter State
     const [selectedCategories, setSelectedCategories] = useState([])
+    const [selectedBrands, setSelectedBrands] = useState([])
     const [selectedPriceRanges, setSelectedPriceRanges] = useState([])
     const [sortBy, setSortBy] = useState('newest')
     const [searchTerm, setSearchTerm] = useState('')
@@ -55,6 +57,11 @@ export default function Collection() {
         // Category Filter
         if (selectedCategories.length > 0) {
             result = result.filter(p => selectedCategories.includes(p.category))
+        }
+
+        // Brand Filter
+        if (selectedBrands.length > 0) {
+            result = result.filter(p => selectedBrands.includes(p.brand))
         }
 
         // Price Filter
@@ -122,6 +129,22 @@ export default function Collection() {
                         </div>
 
                         <div className="sidebar-section">
+                            <h4 className="sidebar-title">Brands</h4>
+                            <div className="filter-options">
+                                {brands.map(brand => (
+                                    <label key={brand} className="checkbox-label">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedBrands.includes(brand)}
+                                            onChange={() => toggleBrand(brand)}
+                                        />
+                                        {brand}
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="sidebar-section">
                             <h4 className="sidebar-title">Price Range</h4>
                             <div className="filter-options">
                                 {priceRanges.map(range => (
@@ -140,6 +163,7 @@ export default function Collection() {
                         <div className="sidebar-section">
                             <button className="btn btn-outline w-100" onClick={() => {
                                 setSelectedCategories([])
+                                setSelectedBrands([])
                                 setSelectedPriceRanges([])
                                 setSearchTerm('')
                             }}>
