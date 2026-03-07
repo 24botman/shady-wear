@@ -94,6 +94,12 @@ export default function Collection() {
         )
     }
 
+    const toggleBrand = (brand) => {
+        setSelectedBrands(prev =>
+            prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
+        )
+    }
+
     return (
         <div className="collection page-enter page-enter-active">
             <section className="collection-header">

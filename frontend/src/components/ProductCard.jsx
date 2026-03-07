@@ -22,8 +22,9 @@ export default function ProductCard({ product }) {
       </div>
 
       <div className="product-card__content">
+        {product.brand && <p className="product-card__brand" style={{ fontSize: '0.75rem', color: 'var(--color-gray-light)', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{product.brand}</p>}
         <h3 className="product-card__title">{product.name}</h3>
-        <p className="product-card__price">${product.price.toFixed(2)}</p>
+        <p className="product-card__price">₹{product.price?.toLocaleString('en-IN')}</p>
 
         <div className="product-card__sizes">
           {product.sizes.map((size) => (
